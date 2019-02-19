@@ -17,7 +17,7 @@ func Provider() terraform.ResourceProvider {
 				Required:  true,
 				Sensitive: true,
 			},
-			"base_url": {
+			"hostname": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -43,7 +43,7 @@ func Provider() terraform.ResourceProvider {
 
 // ccsClient provides Client credentials
 type ccsClient struct {
-	BaseURL     string
+	Hostname    string
 	Username    string
 	Password    string
 	Application string
@@ -53,7 +53,7 @@ type ccsClient struct {
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	client := ccsClient{
-		BaseURL:     d.Get("base_url").(string),
+		Hostname:    d.Get("hostname").(string),
 		Username:    d.Get("username").(string),
 		Password:    d.Get("password").(string),
 		Application: d.Get("application").(string),

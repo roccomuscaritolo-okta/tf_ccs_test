@@ -1,6 +1,7 @@
 package oktaccs
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -34,22 +35,23 @@ func dataSourceCloudConfigServerSecrets() *schema.Resource {
 func dataSourceCloudConfigServerSecretsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*ccsClient)
 
-  // declare empty StringSlice
+	// declare empty StringSlice
 	var profileSlice []string
 
-  // get values from profiles attribute
+	// get values from profiles attribute
 	profileSet := d.Get("profiles").(*schema.Set)
 
-  // append values from *schema.Set into slice
-  for _, v := range profileSet.List() {
+	// append values from *schema.Set into slice
+	for _, v := range profileSet.List() {
 		profileSlice = append(profileSlice, v.(string))
 	}
 
-  // join profiles into a single comma separated string
+	// join profiles into a single comma separated string
 	profiles := strings.Join(profileSlice, ",")
 
+	// Example rendered url
 	// url := "https://ct0.cloud-config.auw2l.internal/master/okta-monolith_ct1,monolith_ct2.properties"
-	url := client.BaseURL + "/master/" + client.Application + "-" + profiles + ".properties"
+	url := "https://" + client.Hostname + "/master/" + client.Application + "-" + profiles + ".properties"
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -72,7 +74,7 @@ func dataSourceCloudConfigServerSecretsRead(d *schema.ResourceData, meta interfa
 
 	p := properties.MustLoadString(s)
 
-	d.SetId("testID111")
+	d.SetId(fmt.Sprintf("%s: %s", client.Hostname, profiles))
 	d.Set("properties", p.Map())
 
 	return nil
